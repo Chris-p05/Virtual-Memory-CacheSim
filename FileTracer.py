@@ -10,20 +10,69 @@ class FileTracer:
         self.__physical_memory = None
         self.__physical_memory_os_usage = None
         self.__instructions = None
+        self.__virtual_address_space = 32  # in bits
         self.__trace_file = []
 
     def load(self):
 
         parser = argparse.ArgumentParser(description = 'VM Cache Simulator')
 
-        parser.add_argument('-s', '--cache-size', type = int, required = True)
-        parser.add_argument('-b','--block-size', type = int, required= True)
-        parser.add_argument('-a','--associativty', type = int, required = True)
-        parser.add_argument('-r','--replacement-policy', type = str, required = True)
-        parser.add_argument('-p','--physical-memory', type = int, required = True)
-        parser.add_argument('-u','--physical-memory-os-usage', type = int, required = True)
-        parser.add_argument('-n','--instructions', type = int, required = True)
-        parser.add_argument('-f', '--trace-file',action='append', type=str, required=True, help='Specify 1-3 trace files')
+        parser.add_argument(
+            '-s', 
+            '--cache-size',
+            type = int,
+            choices = [16, 32, 64, 128, 256, 512, 1024, 2048, 4096],
+            required = True
+        )
+        parser.add_argument(
+            '-b',
+            '--block-size',
+            type = int,
+            choices = [8, 16, 32, 64],
+            required= True
+        )
+        parser.add_argument(
+            '-a',
+            '--associativty',
+            type = int,
+            choices = [2, 4, 8, 16],
+            required = True
+        )
+        parser.add_argument(
+            '-r',
+            '--replacement-policy',
+            type = str,
+            choices = ["r", "rr"],
+            required = True
+        )
+        parser.add_argument(
+            '-p',
+            '--physical-memory',
+            type = int,
+            choices=[128, 256, 512, 1024, 2048, 4096],
+            required = True
+        )
+        parser.add_argument(
+            '-u',
+            '--physical-memory-os-usage',
+            type = int,
+            choices=range(1, 101),
+            required = True
+        )
+        parser.add_argument(
+            '-n',
+            '--instructions',
+            type = int,
+            required = True
+        )
+        parser.add_argument(
+            '-f',
+            '--trace-file',
+            action='append',
+            type=str,
+            required=True,
+            help='Specify 1-3 trace files'
+        )
 
         args = parser.parse_args()
 
@@ -52,8 +101,8 @@ class FileTracer:
         print("{:<28}".format("Cache Size: ") + str(self.get_chache_size()) + " KB")
         print("{:<28}".format("Block Size: ") + str(self.get_block_size()) + " bytes")
         print("{:<28}".format("Associativity: ") + str(self.get_associativity()))
-        print("{:<28}".format("Replacement Policy: ") + str(self.get_replacement_policy()))
-        print("{:<28}".format("Physical Memory Size: ") + str(self.get_physical_memory()) + " KB")
+        print("{:<28}".format("Replacement Policy: ") + ("Round Robin" if self.get_replacement_policy() == 'rr' else "Random"))
+        print("{:<28}".format("Physical Memory Size: ") + str(self.get_physical_memory()) + " MB")
         print("{:<28}".format("Physical Memory OS Usage: ") + str(self.get_physical_memory_os_usage()) + "%")
         print("{:<28}".format("Number of Instructions: ") + str(self.get_instructions()))
 
@@ -82,5 +131,8 @@ class FileTracer:
     
     def get_trace_file(self):
         return self.__trace_file
+    
+    def get_virtual_address_space(self):
+        return self.__virtual_address_space
    
     
