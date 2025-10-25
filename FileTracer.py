@@ -1,4 +1,5 @@
 import argparse
+import math
 
 class FileTracer:
     
@@ -98,7 +99,7 @@ class FileTracer:
             print(f"\t{file}")
         print()
         print(f"***** Cache Input Parameters *****")
-        print("{:<28}".format("Cache Size: ") + str(self.get_chache_size()) + " KB")
+        print("{:<28}".format("Cache Size: ") + str(self.get_cache_size()) + " KB")
         print("{:<28}".format("Block Size: ") + str(self.get_block_size()) + " bytes")
         print("{:<28}".format("Associativity: ") + str(self.get_associativity()))
         print("{:<28}".format("Replacement Policy: ") + ("Round Robin" if self.get_replacement_policy() == 'rr' else "Random"))
@@ -108,7 +109,7 @@ class FileTracer:
 
         print()
 
-    def get_chache_size(self):
+    def get_cache_size(self):
         return self.__cache_size
         
     def get_block_size(self):
@@ -135,4 +136,62 @@ class FileTracer:
     def get_virtual_address_space(self):
         return self.__virtual_address_space
    
+    #Christopher Peters Part starts here >:) 
+
+  # ---------- Cache Calculated Values ----------
     
+    def get_cache_size_bytes(self):
+        return self.get_cache_size() * 1024
+    
+    def get_total_blocks(self):
+        return self.get_cache_size_bytes() // self.get_block_size()
+    
+    def get_total_rows(self):
+        return self.get_total_blocks() // self.get_associativity()
+    
+    def get_index_size(self):
+        return int(math.log2(self.get_total_rows()))
+    
+    def get_offset_size(self):
+        return int(math.log2(self.get_block_size()))
+    
+    def get_physical_memory_bytes(self):
+        return self.get_physical_memory() * 1024 * 1024
+    
+    def get_total_address_bits(self):
+        return int(math.log2(self.get_physical_memory_bytes()))
+    
+    def get_tag_size(self):
+        return self.get_total_address_bits() - self.get_index_size() - self.get_offset_size()
+    
+    def get_overhead_bits_per_block(self):
+        return 1 + self.get_tag_size()
+    
+    def get_total_overhead_bits(self):
+        return self.get_overhead_bits_per_block() * self.get_total_blocks()
+    
+    def get_overhead_bytes(self):
+        return math.ceil(self.get_total_overhead_bits() / 8)
+    
+    def get_implementation_memory_bytes(self):
+        return self.get_cache_size_bytes() + self.get_overhead_bytes()
+    
+    def get_implementation_memory_kb(self):
+        return self.get_implementation_memory_bytes() / 1024
+    
+    def get_cost(self):
+        return self.get_implementation_memory_kb() * 0.07
+    
+    # --------------- Print menu for Cache Calculated Values -----------------
+    
+    def print_cache_calculated_values(self):
+        """Print the Cache Calculated Values section"""
+        print("***** Cache Calculated Values *****")
+        print(f"Total # Blocks:                  {self.get_total_blocks()}")
+        print(f"Tag Size:                        {self.get_tag_size()} bits")
+        print(f"Index Size:                      {self.get_index_size()} bits")
+        print(f"Total # Rows:                    {self.get_total_rows()}")
+        print(f"Overhead Size:                   {self.get_overhead_bytes()} bytes")
+        print(f"Implementation Memory Size:      {self.get_implementation_memory_kb():.2f} KB ({self.get_implementation_memory_bytes()} bytes)")
+        print(f"Cost:                            ${self.get_cost():.2f} @ $0.07 per KB")
+        print()
