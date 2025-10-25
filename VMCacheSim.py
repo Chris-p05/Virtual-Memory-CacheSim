@@ -6,7 +6,8 @@ def main():
         tracer = FileTracer()
         tracer.load()
         tracer.print_config() 
-        tracer.print_cache_calculated_values()      
+        tracer.print_cache_calculated_values()   
+        tracer.print_physical_memory_calculations()   
 
 if __name__ == "__main__":
         main()

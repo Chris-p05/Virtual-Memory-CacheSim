@@ -195,3 +195,39 @@ class FileTracer:
         print(f"Implementation Memory Size:      {self.get_implementation_memory_kb():.2f} KB ({self.get_implementation_memory_bytes()} bytes)")
         print(f"Cost:                            ${self.get_cost():.2f} @ $0.07 per KB")
         print()
+
+
+            #Carlos Mejia Rosales Part starts here :(
+
+  # ---------- Physical Memory Calculated Values ----------
+
+    def print_physical_memory_calculations(self):
+        
+        """Calculates and prints the Physical Memory Calculated Values section."""
+       
+        PAGE_SIZE_KB = 4             
+        PTE_ENTRIES_PER_PROCESS = 524288
+
+        physical_memory_mb = self.get_physical_memory()
+        system_percent = self.get_physical_memory_os_usage() / 100.0
+        num_trace_files = len(self.get_trace_file())
+        
+        total_memory_kb = physical_memory_mb * 1024
+        num_physical_pages = total_memory_kb // PAGE_SIZE_KB
+        
+        num_pages_for_system = int(num_physical_pages * system_percent)
+
+        PPN_BITS = 18 
+        VALID_BIT = 1
+        size_of_pte_bits = PPN_BITS + VALID_BIT
+        
+        total_bits = PTE_ENTRIES_PER_PROCESS * num_trace_files * size_of_pte_bits
+        total_ram_bytes = total_bits // 8
+
+        #print outputs 
+
+        print("\n***** Physical Memory Calculated Values *****")
+        print(f"\nNumber of Physical Pages: {num_physical_pages:>20}")
+        print(f"Number of Pages for System: {num_pages_for_system:>18}        ({system_percent:.2f} * {num_physical_pages} = {num_pages_for_system} )")
+        print(f"Size of Page Table Entry: {size_of_pte_bits:>20} bits        (1 valid bit, {PPN_BITS} for PhysPage)")
+        print(f"Total RAM for Page Table(s): {total_ram_bytes:>15} bytes        ({PTE_ENTRIES_PER_PROCESS // 1024}K entries * {num_trace_files} .trc files * {size_of_pte_bits} / 8)")
