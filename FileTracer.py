@@ -228,6 +228,6 @@ class FileTracer:
 
         print("\n***** Physical Memory Calculated Values *****")
         print(f"\nNumber of Physical Pages: {num_physical_pages:>20}")
-        print(f"Number of Pages for System: {num_pages_for_system:>18}        ({system_percent:.2f} * {num_physical_pages} = {num_pages_for_system} )")
-        print(f"Size of Page Table Entry: {size_of_pte_bits:>20} bits        (1 valid bit, {PPN_BITS} for PhysPage)")
-        print(f"Total RAM for Page Table(s): {total_ram_bytes:>15} bytes        ({PTE_ENTRIES_PER_PROCESS // 1024}K entries * {num_trace_files} .trc files * {size_of_pte_bits} / 8)")
+        print(f"Number of Pages for System: {num_pages_for_system:>18}")
+        print(f"Size of Page Table Entry: {size_of_pte_bits:>20} bits")
+        print(f"Total RAM for Page Table(s): {total_ram_bytes:>15} bytes")
