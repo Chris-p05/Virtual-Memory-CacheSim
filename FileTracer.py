@@ -1,4 +1,5 @@
 import argparse
+import math
 
 class FileTracer:
     
@@ -98,7 +99,7 @@ class FileTracer:
             print(f"\t{file}")
         print()
         print(f"***** Cache Input Parameters *****")
-        print("{:<28}".format("Cache Size: ") + str(self.get_chache_size()) + " KB")
+        print("{:<28}".format("Cache Size: ") + str(self.get_cache_size()) + " KB")
         print("{:<28}".format("Block Size: ") + str(self.get_block_size()) + " bytes")
         print("{:<28}".format("Associativity: ") + str(self.get_associativity()))
         print("{:<28}".format("Replacement Policy: ") + ("Round Robin" if self.get_replacement_policy() == 'rr' else "Random"))
@@ -108,7 +109,7 @@ class FileTracer:
 
         print()
 
-    def get_chache_size(self):
+    def get_cache_size(self):
         return self.__cache_size
         
     def get_block_size(self):
@@ -134,10 +135,15 @@ class FileTracer:
     
     def get_virtual_address_space(self):
         return self.__virtual_address_space
-   
-<<<<<<< Updated upstream
     
-=======
+    def get_page_table_entry_bits(self):
+        """Size of page table entry (1 valid bit + physical page bits)"""
+        PAGE_SIZE_KB = 4
+        total_memory_kb = self.get_physical_memory() * 1024
+        num_physical_pages = total_memory_kb // PAGE_SIZE_KB
+        PPN_BITS = int(math.log2(num_physical_pages))
+        return 1 + PPN_BITS 
+    
     #Christopher Peters Part starts here >:) 
 
   # ---------- Cache Calculated Values ----------
@@ -198,24 +204,31 @@ class FileTracer:
         print(f"Cost:                            ${self.get_cost():.2f} @ $0.07 per KB")
         print()
 
+
     #Carlos Mejia Rosales Part starts here 🙁
+
+            #Carlos Mejia Rosales Part starts here :(
+
 
   # ---------- Physical Memory Calculated Values ----------
 
     def print_physical_memory_calculations(self):
-
         """Calculates and prints the Physical Memory Calculated Values section."""
-
         PAGE_SIZE_KB = 4
+        """Calculates and prints the Physical Memory Calculated Values section."""
+        PAGE_SIZE_KB = 4             
         PTE_ENTRIES_PER_PROCESS = 524288
 
         physical_memory_mb = self.get_physical_memory()
         system_percent = self.get_physical_memory_os_usage() / 100.0
         num_trace_files = len(self.get_trace_file())
 
+
+        total_memory_kb = physical_memory_mb * 1024
+        num_physical_pages = total_memory_kb // PAGE_SIZE_KB      
         total_memory_kb = physical_memory_mb * 1024
         num_physical_pages = total_memory_kb // PAGE_SIZE_KB
-
+        
         num_pages_for_system = int(num_physical_pages * system_percent)
 
         PPN_BITS = 18 
@@ -231,4 +244,14 @@ class FileTracer:
         print(f"Number of Pages for System: {num_pages_for_system:>18} ")
         print(f"Size of Page Table Entry: {size_of_pte_bits:>20} bits ")
         print(f"Total RAM for Page Table(s): {total_ram_bytes:>15} bytes")
->>>>>>> Stashed changes
+
+        total_bits = PTE_ENTRIES_PER_PROCESS * num_trace_files * size_of_pte_bits
+        total_ram_bytes = total_bits // 8
+
+        #print outputs 
+
+        print("\n***** Physical Memory Calculated Values *****")
+        print(f"\nNumber of Physical Pages: {num_physical_pages:>20}")
+        print(f"Number of Pages for System: {num_pages_for_system:>18}        ({system_percent:.2f} * {num_physical_pages} = {num_pages_for_system} )")
+        print(f"Size of Page Table Entry: {size_of_pte_bits:>20} bits        (1 valid bit, {PPN_BITS} for PhysPage)")
+        print(f"Total RAM for Page Table(s): {total_ram_bytes:>15} bytes        ({PTE_ENTRIES_PER_PROCESS // 1024}K entries * {num_trace_files} .trc files * {size_of_pte_bits} / 8)")
