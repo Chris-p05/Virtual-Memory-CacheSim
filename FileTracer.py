@@ -2,94 +2,32 @@ import argparse
 import math
 
 class FileTracer:
-    
+
     def __init__(self):
-        self.__cache_size = None
-        self.__block_size = None
-        self.__associativity = None
-        self.__replacement_policy = None
-        self.__physical_memory = None
-        self.__physical_memory_os_usage = None
-        self.__instructions = None
-        self.__virtual_address_space = 32  # in bits
-        self.__trace_file = []
+        self.data = []
 
-    def load(self):
+    def parse_trace_file(self, filename):
 
-        parser = argparse.ArgumentParser(description = 'VM Cache Simulator')
+        with open(filename, "r") as file:
+            lines = file.readlines()
 
-        parser.add_argument(
-            '-s', 
-            '--cache-size',
-            type = int,
-            choices = [16, 32, 64, 128, 256, 512, 1024, 2048, 4096],
-            required = True
-        )
-        parser.add_argument(
-            '-b',
-            '--block-size',
-            type = int,
-            choices = [8, 16, 32, 64],
-            required= True
-        )
-        parser.add_argument(
-            '-a',
-            '--associativty',
-            type = int,
-            choices = [2, 4, 8, 16],
-            required = True
-        )
-        parser.add_argument(
-            '-r',
-            '--replacement-policy',
-            type = str,
-            choices = ["r", "rr"],
-            required = True
-        )
-        parser.add_argument(
-            '-p',
-            '--physical-memory',
-            type = int,
-            choices=[128, 256, 512, 1024, 2048, 4096],
-            required = True
-        )
-        parser.add_argument(
-            '-u',
-            '--physical-memory-os-usage',
-            type = int,
-            choices=range(1, 101),
-            required = True
-        )
-        parser.add_argument(
-            '-n',
-            '--instructions',
-            type = int,
-            required = True
-        )
-        parser.add_argument(
-            '-f',
-            '--trace-file',
-            action='append',
-            type=str,
-            required=True,
-            help='Specify 1-3 trace files'
-        )
+        for line in lines:
+            line = line.strip()
 
-        args = parser.parse_args()
+            if line.startswith("EIP"):
 
-        self.__cache_size = args.cache_size
-        self.__block_size = args.block_size
-        self.__associativity = args.associativty
-        self.__replacement_policy = args.replacement_policy
-        self.__physical_memory = args.physical_memory
-        self.__physical_memory_os_usage = args.physical_memory_os_usage
-        self.__instructions = args.instructions
-        
+                match = re.search(r"EIP \((\d+)\): ([0-9a-fA-F]+)", line)
+                if match:
+                    length = int(match.group(1))     
+                    addr = int(match.group(2), 16)   
+                    self.data.append((addr, length))    
 
-        if not (1 <= len(args.trace_file) <= 3):
-            parser.error("argument -f/--trace-file: must be given between 1 and 3 times")
+            elif line.startswith("dstM"):
 
-        self.__trace_file = args.trace_file
+                dst_match = re.search(r"dstM:\s*([0-9a-fA-F]+)\s+([0-9A-F\-]+)", line)
+                if dst_match:
+                    dst_addr = dst_match.group(1)
+                    dst_data = dst_match.group(2)
 
         return self
     
@@ -107,7 +45,12 @@ class FileTracer:
         print("{:<28}".format("Physical Memory OS Usage: ") + str(self.get_physical_memory_os_usage()) + "%")
         print("{:<28}".format("Number of Instructions: ") + str(self.get_instructions()))
 
-        print()
+        src_match = re.search(r"srcM:\s*([0-9a-fA-F]+)\s+([0-9A-F\-]+)", line)
+        if src_match:
+                    src_addr = src_match.group(1)
+                    src_data = src_match.group(2)
+                    if src_addr != "00000000" and src_data != "--------":
+                        self.data.append((int(src_addr, 16), 4)) 
 
     def get_cache_size(self):
         return self.__cache_size

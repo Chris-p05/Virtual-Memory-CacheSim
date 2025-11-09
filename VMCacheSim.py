@@ -1,12 +1,17 @@
 from FileTracer import FileTracer
 from VirtualMemory import VirtualMemory
 
+def simulation_milestone_1():
+        cache_values_calculator = CacheValuesCalculator()
+        cache_values_calculator.load()
+        config_str = cache_values_calculator.get_program_output()
+        print("Enter the simulation number: ")
+        simulation_number = input()
+        with open(f"Team_07_Sim_{simulation_number}_M#1.txt", "w") as file:
+                file.write(config_str)
 
 def main():
-        print("\nCache Simulator - CS 3853 - Team #7\n")
-        tracer = FileTracer()
-        tracer.load()
-        tracer.print_config()        
+        simulation_milestone_1()
 
         tracer.print_config() 
         tracer.print_cache_calculated_values()      
