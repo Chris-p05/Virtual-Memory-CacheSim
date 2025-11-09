@@ -15,7 +15,9 @@ def main():
 
         tracer.print_config() 
         tracer.print_cache_calculated_values()   
-        tracer.print_physical_memory_calculations()  
+        tracer.print_physical_memory_calculations()
+
+        #milestone 2  
 
         print("\nMILESTONE #2: -Virtual Memory Simulation Results")
 
