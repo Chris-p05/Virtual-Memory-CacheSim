@@ -1,20 +1,18 @@
 import re
 import math
 
+# Christopher Peters Part starts here >:) 
 class VirtualMemory:
     print(" Virtual Memory Simulator for Milestone #2Handles page table management and address mapping")
     
     def __init__(self, physical_memory_mb, percent_system, trace_files):
+
         self.__physical_memory_mb = physical_memory_mb
         self.__percent_system = percent_system
         self.__trace_files = trace_files
-        
         self.__page_size = 4096
-        
         self.__page_tables = [{} for _ in range(len(trace_files))]
-
         self.__free_physical_pages = set()
-        
         self.__virtual_pages_mapped = 0
         self.__page_table_hits = 0
         self.__pages_from_free = 0
