@@ -1,6 +1,8 @@
 import re
 import math
 
+from FileTracer import FileTracer
+
 # Christopher Peters Part starts here >:) 
 class VirtualMemory:
     print(" Virtual Memory Simulator for Milestone #2Handles page table management and address mapping")
@@ -13,10 +15,14 @@ class VirtualMemory:
         self.__page_size = 4096
         self.__page_tables = [{} for _ in range(len(trace_files))]
         self.__free_physical_pages = set()
+
+        # Data for output statistics
         self.__virtual_pages_mapped = 0
         self.__page_table_hits = 0
         self.__pages_from_free = 0
         self.__total_page_faults = 0
+        
+        self.file_tracer = FileTracer()
         
         self._initialize_free_pages()
     
@@ -41,7 +47,6 @@ class VirtualMemory:
         return address // self.__page_size
     
     def allocate_physical_page(self, process_id, virtual_page):
-        print("Allocate a physical page for a virtual page \nReturns: physical page number or None if page fault")
         if virtual_page in self.__page_tables[process_id]:
             self.__page_table_hits += 1
             return self.__page_tables[process_id][virtual_page]
@@ -54,64 +59,24 @@ class VirtualMemory:
         else:
             self.__total_page_faults += 1
             return None
-    
-    def parse_trace_line(self, line):
-        print("Parse a trace file line and extract addresses\nReturns: list of (address, length, type) tuples")
-        addresses = []
-        
-        if line.startswith("EIP"):
-            match = re.search(r'EIP \((\d+)\):\s+([0-9a-fA-F]+)', line)
-            if match:
-                length = int(match.group(1))
-                address = int(match.group(2), 16)
-                addresses.append((address, length, 'instruction'))
-        
-        elif line.strip().startswith("dstM:"):
-            dst_match = re.search(r'dstM:\s+([0-9a-fA-F]+)\s+([0-9a-fA-F\-]+)', line)
-            if dst_match:
-                dst_addr = int(dst_match.group(1), 16)
-                dst_data = dst_match.group(2)
-                if dst_addr != 0 and dst_data != '--------':
-                    addresses.append((dst_addr, 4, 'data')) 
-            
-            src_match = re.search(r'srcM:\s+([0-9a-fA-F]+)\s+([0-9a-fA-F\-]+)', line)
-            if src_match:
-                src_addr = int(src_match.group(1), 16)
-                src_data = src_match.group(2)
-                if src_addr != 0 and src_data != '--------':
-                    addresses.append((src_addr, 4, 'data'))
-        
-        return addresses
-    
+
     def process_trace_files(self):
-        print("Process all trace files and simulate virtual memory")
         for process_id, trace_file in enumerate(self.__trace_files):
-            try:
-                with open(trace_file, 'r') as f:
-                    for line in f:
-                        addresses = self.parse_trace_line(line)
-                        
-                        for address, length, addr_type in addresses:
-                            virtual_page = self.get_virtual_page_number(address)
-                            self.__virtual_pages_mapped += 1
-                            self.allocate_physical_page(process_id, virtual_page)
-                            
-            except FileNotFoundError:
-                print(f"Warning: Trace file '{trace_file}' not found!")
-                continue
-    
+            data = self.file_tracer.parse_trace_file(trace_file)
+            for address, length, addr_type in data:
+                virtual_page = self.get_virtual_page_number(address)
+                self.__virtual_pages_mapped += 1
+                self.allocate_physical_page(process_id, virtual_page)
+                    
     def get_page_table_wasted_bytes(self, process_id, page_table_entry_bits):
-        print("Calculate wasted bytes for a specific page table")
         entries_per_table = 512 * 1024  
         used_entries = len(self.__page_tables[process_id])
-        
         total_bytes_allocated = math.ceil((entries_per_table * page_table_entry_bits) / 8)
-
         used_bytes = math.ceil((used_entries * page_table_entry_bits) / 8)
-        
         return total_bytes_allocated - used_bytes
     
-    def print_virtual_memory_results(self, page_table_entry_bits):
+
+    def print_virtual_memory_results(self):
         """Print Virtual Memory Simulation Results"""
         print(f"Virtual Pages Mapped:            {self.__virtual_pages_mapped}")
         print("------------------------------")

@@ -21,7 +21,7 @@ def simulation_milestone_1():
         )
 
         vm.process_trace_files()
-        vm.print_virtual_memory_results(cache_values_calculator.get_page_table_entry_bits())
+        vm.print_virtual_memory_results()#cache_values_calculator.get_page_table_entry_bits())
 
 def main():
         simulation_milestone_1()
