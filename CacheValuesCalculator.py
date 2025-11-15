@@ -14,9 +14,11 @@ class CacheValuesCalculator:
         self.__physical_memory_os_usage = None
         self.__instructions = None
         self.__virtual_address_space = 32  # in bits
+        self.__page_size = 4096  # 4KB final page size
         self.__trace_file = []
 
         self.__program_output = ""
+        self.load()
 
     def load(self):
 
@@ -123,6 +125,9 @@ class CacheValuesCalculator:
     
     def get_virtual_address_space(self):
         return self.__virtual_address_space
+    
+    def get_page_size(self):
+        return self.__page_size
     
     def get_program_output(self):
         self.__program_output += "Cache Simulator - CS 3853 - Team #7\n\n"

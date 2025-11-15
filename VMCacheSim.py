@@ -5,7 +5,6 @@ from CacheValuesCalculator import CacheValuesCalculator
 
 def simulation_milestone_1():
         cache_values_calculator = CacheValuesCalculator()
-        cache_values_calculator.load()
         config_str = cache_values_calculator.get_program_output()
         print("Enter the simulation number: ")
         simulation_number = input()
@@ -14,12 +13,7 @@ def simulation_milestone_1():
 
         print("MILESTONE #2: -Virtual Memory Simulation Results")
 
-        vm = VirtualMemory(
-                physical_memory_mb=cache_values_calculator.get_physical_memory(),
-                percent_system=cache_values_calculator.get_physical_memory_os_usage(),
-                trace_files=cache_values_calculator.get_trace_file()
-        )
-
+        vm = VirtualMemory()
         vm.process_trace_files()
         vm.print_virtual_memory_results()#cache_values_calculator.get_page_table_entry_bits())
 
