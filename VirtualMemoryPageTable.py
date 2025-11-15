@@ -5,9 +5,16 @@ from CacheValuesCalculator import CacheValuesCalculator
 
 class VirtualMemoryPageTable:
     def __init__(self):
+        self.__process_name = ""
         self.cache_values_calculator = CacheValuesCalculator()
         self.__page_table = {} # virtual page_number -> physical_page_number
         self.__page_table_entry_bits = 19  # bits per page table entry
+
+    def set_process_name(self, name):
+        self.__process_name = name
+
+    def get_process_name(self): 
+        return self.__process_name
 
     def get_physical_page(self, virtual_page):
         return self.__page_table.get(virtual_page)
