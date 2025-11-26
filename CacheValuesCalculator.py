@@ -138,15 +138,14 @@ class CacheValuesCalculator:
         for file in self.get_trace_file():
             print(f"\t{file}")
         print()
-        print(f"***** Cache Input Parameters *****")
+        print(f"***** Cache Input Parameters *****\n")
         print("{:<28}".format("Cache Size: ") + str(self.get_cache_size()) + " KB")
         print("{:<28}".format("Block Size: ") + str(self.get_block_size()) + " bytes")
         print("{:<28}".format("Associativity: ") + str(self.get_associativity()))
         print("{:<28}".format("Replacement Policy: ") + ("Round Robin" if self.get_replacement_policy() == 'rr' else "Random"))
-        print("{:<28}".format("Physical Memory Size: ") + str(self.get_physical_memory()) + " MB")
-        print("{:<28}".format("Physical Memory OS Usage: ") + str(self.get_physical_memory_os_usage()) + "%")
-        print("{:<28}".format("Number of Instructions: ") + str(self.get_instructions()))
-
+        print("{:<28}".format("Physical Memory: ") + str(self.get_physical_memory()) + " MB")
+        print("{:<28}".format("Percent Memory Used by System: ") + str(self.get_physical_memory_os_usage()) + "%")
+        print("{:<28}".format("Instructions / Time Slice: ") + str(self.get_instructions())) #Number of Instructions
         print()
 
 # Christopher Peters Part starts here >:) 
@@ -198,8 +197,7 @@ class CacheValuesCalculator:
     # --------------- Print menu for Cache Calculated Values -----------------
     
     def print_cache_calculated_values(self):
-        """Print the Cache Calculated Values section"""
-        print("***** Cache Calculated Values *****")
+        print("***** Cache Calculated Values *****\n")
         print(f"Total # Blocks:                  {self.get_total_blocks()}")
         print(f"Tag Size:                        {self.get_tag_size()} bits")
         print(f"Index Size:                      {self.get_index_size()} bits")
@@ -231,9 +229,8 @@ class CacheValuesCalculator:
         return total_bits // 8
 
     def print_physical_memory_calculations(self):
-        """Prints the Physical Memory Calculated Values section."""
-        print("\n***** Physical Memory Calculated Values *****")
-        print(f"\nNumber of Physical Pages: {self.get_number_physical_pages():>20}")
+        print("***** Physical Memory Calculated Values *****\n")
+        print(f"Number of Physical Pages: {self.get_number_physical_pages():>20}")
         print(f"Number of Pages for System: {self.get_number_system_pages():>18}")
         print(f"Size of Page Table Entry: {self.get_page_table_entry_bits():>20} bits")
         print(f"Total RAM for Page Table(s): {self.get_total_ram_for_page_tables_bytes():>15} bytes")
@@ -254,9 +251,9 @@ class CacheValuesCalculator:
         self.__program_output += "{:<32}".format("Block Size: ") + str(self.get_block_size()) + " bytes\n"
         self.__program_output += "{:<32}".format("Associativity: ") + str(self.get_associativity()) + "\n"
         self.__program_output += "{:<32}".format("Replacement Policy: ") + ("Round Robin\n" if self.get_replacement_policy() == 'rr' else "Random\n")
-        self.__program_output += "{:<32}".format("Physical Memory Size: ") + str(self.get_physical_memory()) + " MB\n"
-        self.__program_output += "{:<32}".format("Physical Memory OS Usage: ") + str(self.get_physical_memory_os_usage()) + "%\n"
-        self.__program_output += "{:<32}".format("Number of Instructions: ") + str(self.get_instructions()) + "\n"
+        self.__program_output += "{:<32}".format("Physical Memory: ") + str(self.get_physical_memory()) + " MB\n"
+        self.__program_output += "{:<32}".format("Percent Memory Used by System: ") + str(self.get_physical_memory_os_usage()) + "%\n"
+        self.__program_output += "{:<32}".format("Instructions / Time Slice: ") + str(self.get_instructions()) + "\n"
         self.__program_output += "\n"
 
         # Cache Calculated Values

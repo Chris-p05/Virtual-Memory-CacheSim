@@ -60,12 +60,12 @@ class VirtualMemorySimulation:
                 self.allocate_physical_page(process_id, virtual_page)
 
     def get_program_output(self):
-        self.__program_output += "***** VIRTUAL MEMORY SIMULATION RESULTS *****\n\n"
+        self.__program_output += "\n***** VIRTUAL MEMORY SIMULATION RESULTS *****\n\n"
         self.__program_output += "{:<32}".format("Physical Pages Used By SYSTEM: ") +  str(self.__cache_values_calculator.get_number_system_pages()) + "\n"
         self.__program_output += "{:<32}".format("Pages Available to User: ") + str(self.__cache_values_calculator.get_number_available_to_user_pages()) + "\n"
         self.__program_output += "\n"
         self.__program_output += "{:<32}".format("Virtual Pages Mapped: ") + str(self.get_virtual_pages_mapped()) + "\n"
-        self.__program_output += "------------------------------\n"
+        self.__program_output += "\t------------------------------\n"
         self.__program_output += "{:<32}".format("\tPage Table Hits: ") + str(self.get_page_table_hits()) + "\n"
         self.__program_output += "{:<32}".format("\tPages from Free: ") + str(self.get_pages_from_free()) + "\n"
         self.__program_output += "{:<32}".format("\tTotal Page Faults: ") + str(self.get_total_page_faults()) + "\n"
@@ -81,7 +81,7 @@ class VirtualMemorySimulation:
         return self.__program_output
 
     def print_virtual_memory_results(self):
-        print("***** VIRTUAL MEMORY SIMULATION RESULTS *****")
+        print("***** VIRTUAL MEMORY SIMULATION RESULTS *****\n")
         print("{:<32}".format("Physical Pages Used By SYSTEM: ") + str(self.__cache_values_calculator.get_number_system_pages()) + "\n")
         print("{:<32}".format("Pages Available to User: ") + str(self.__cache_values_calculator.get_number_available_to_user_pages()) + "\n")
         print("{:<32}".format("Virtual Pages Mapped: ") + str(self.get_virtual_pages_mapped()))
