@@ -13,7 +13,7 @@ class CacheValuesCalculator:
         self.__physical_memory = None
         self.__physical_memory_os_usage = None
         self.__instructions = None
-        self.__virtual_address_space = 32  # in bits
+        self.__virtual_address_space = 31  # in bits
         self.__page_size = 4096  # 4KB final page size
         self.__pte_entries_per_process = 524288 # 2^19 or 512K entries
         self.__page_table_entry_bits = 19  # 18 bits for PPN + 1 valid bit

@@ -7,6 +7,7 @@ class FileTracer:
         self.data = []
 
     def parse_trace_file(self, filename):
+        self.data = []
         try:
 
             with open(filename, "r") as file:
