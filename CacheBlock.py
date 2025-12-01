@@ -1,7 +1,7 @@
 class CacheBlock:
-    def __init__(self, tag=None, valid = False):
-        self.tag = tag
-        self.valid = valid
+    def __init__(self):
+        self.tag = None
+        self.valid = False
     
     def get_tag(self):
         return self.tag
@@ -12,5 +12,8 @@ class CacheBlock:
     def set_tag(self, tag):
         self.tag = tag
     
-    def set_valid(self, valid):
-        self.valid = valid
+    def set_valid(self):
+        self.valid = True
+
+    def reset_valid(self):
+        self.valid = False

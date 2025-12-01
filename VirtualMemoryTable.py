@@ -26,14 +26,8 @@ class VirtualMemoryTable:
     def is_mapped(self, virtual_page):
         return virtual_page in self.__virtual_memory_table
 
-    def address_to_page_number(self, address):
-        return address // self.__parameters.get_page_size()
-    
-    def page_number_to_address(self, page_number):
-        return page_number * self.__parameters.get_page_size()
-
     def allocate_physical_page(self, instruction):
-        virtual_page = self.address_to_page_number(instruction.get_virtual_address())
+        virtual_page = instruction.get_virtual_pages_number()
         physical_page = None
 
         self.__virtual_pages_mapped += 1
@@ -51,7 +45,7 @@ class VirtualMemoryTable:
             else:
                 self.__total_page_faults += 1
 
-        instruction.set_physical_address(self.page_number_to_address(physical_page) if physical_page is not None else None)
+        instruction.set_physical_page_number(physical_page)
 
     def get_virtual_pages_mapped(self):
         return self.__virtual_pages_mapped
@@ -72,4 +66,4 @@ class VirtualMemoryTable:
         return (self.get_used_page_table_entries() /  self.__parameters.get_pte_entries_per_process()) * 100 if  self.__parameters.get_pte_entries_per_process() > 0 else 0
 
     def get_page_table_wasted_bytes(self):
-        return ( self.__parameters.get_pte_entries_per_process() - self.get_used_page_table_entries()) * (self.__parameters.get_page_table_entry_bits() // 8)
+        return ( self.__parameters.get_pte_entries_per_process() - self.get_used_page_table_entries()) * self.__parameters.get_page_table_entry_bits() //8

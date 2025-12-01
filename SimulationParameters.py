@@ -88,15 +88,11 @@ class SimulationParametersBuilder:
 
         return self
 
-    def set_instructions(self, instructions):
-        self.instructions = instructions
-        return self
+
 
 class SimulationParameters:
 
     def __init__ (self, builder:SimulationParametersBuilder):
-
-        self.__instructions: dict[str, List[Instruction]] = builder.instructions
 
         ##os
         self.__page_size = builder.page_size # 4KB final page size
@@ -137,9 +133,7 @@ class SimulationParameters:
 
         ## files
         self.__trace_file = builder.trace_file
-
-    def get_instructions(self): return self.__instructions
-
+        
     ## OS
     def get_page_size(self): return self.__page_size
     def get_physical_memory_os_usage(self): return self.__physical_memory_os_usage

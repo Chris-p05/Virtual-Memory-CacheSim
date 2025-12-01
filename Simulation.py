@@ -2,23 +2,18 @@ from VirtualMemoryTable import VirtualMemoryTable
 from CacheTable import CacheTable
 from Tracer import Tracer
 from SimulationParameters import SimulationParameters
-from SimulationParameters import SimulationParametersBuilder
+from SimulationInstructions import SimulationInstructions
 
 class Simulation:
     def __init__(self):
-        self.__parameters = Tracer().get_simulation_parameters()
+        self.__parameters: SimulationParameters = Tracer().get_simulation_parameters()
+        self.__instructions: SimulationInstructions = Tracer().get_simulation_instructions()
         self.__virtual_memory_tables: dict[str, VirtualMemoryTable] = {}
         self.__cache_table = CacheTable(self.__parameters)
         self.__program_output = ""
 
-    def address_to_page_number(self, address):
-        return address // self.__parameters.get_page_size()
-    
-    def page_number_to_address(self, page_number):
-        return page_number * self.__parameters.get_page_size()
-
     def simulate_virtual_memory(self):
-        for filename, instructions in self.__parameters.get_instructions().items():
+        for filename, instructions in  self.__instructions.get_instructions().items():
             virtual_memory_table = VirtualMemoryTable(self.__parameters)
             for instruction in instructions:
                 virtual_memory_table.allocate_physical_page(instruction)
@@ -26,12 +21,11 @@ class Simulation:
 
 
     def simulate_cache(self):
-        for filename, instructions in self.__parameters.get_instructions().items():
+        for filename, instructions in  self.__instructions.get_instructions().items():
             for instruction in instructions:
                  self.__cache_table.access_cache(instruction)
 
     def start(self):
-        self.simulate_virtual_memory()
         self.simulate_virtual_memory()
         self.simulate_cache()
 
@@ -60,7 +54,7 @@ class Simulation:
         self.__program_output += "{:<32}".format("Tag Size: ") + str(self.__parameters.get_tag_size_bits()) + " bits\n"
         self.__program_output += "{:<32}".format("Index Size: ") + str(self.__parameters.get_index_size_bits()) + " bits\n"
         self.__program_output += "{:<32}".format("Total # Rows: ") + str(self.__parameters.get_total_rows()) + "\n"
-        self.__program_output += "{:<32}".format("Overhead Size: ") + str(self.__parameters.get_overhead_bits_total()) + " bytes\n"
+        self.__program_output += "{:<32}".format("Overhead Size: ") + str(self.__parameters.get_overhead_bytes_total()) + " bytes\n"
         self.__program_output += "{:<32}".format("Implementation Memory Size: ") + f"{self.__parameters.get_implementation_memory_kb():.2f} KB ({self.__parameters.get_implementation_memory_bytes()} bytes)\n"
         self.__program_output += "{:<32}".format("Cost: ") + f"${self.__parameters.get_cost():.2f} @ $0.07 per KB\n"
         self.__program_output += "\n"
@@ -97,14 +91,14 @@ class Simulation:
             
     def get_program_output_m3(self):
         self.__program_output += "\n***** CACHE SIMULATION RESULTS *****\n\n"
-        self.__program_output += "{:<32}".format("Total Cache Accesses: ") +  str(self.__cache_table.get_total_accesses()) + "\n"
+        self.__program_output += "{:<32}".format("Total Cache Accesses: ") +  str(self.__cache_table.get_total_accesses()) + " (" + str(self.__cache_table.get_addresses_accesses()) + " addresses)" + "\n"
         self.__program_output += "{:<32}".format("--- Instruction Bytes: ") + str(self.__cache_table.get_instruction_bytes()) + "\n"
         self.__program_output += "{:<32}".format("--- SrcDst Bytes: ") + str(self.__cache_table.get_SrcDst_bytes()) + "\n"
 
         self.__program_output += "{:<32}".format("Cache Hits: ") + str(self.__cache_table.get_hits()) + "\n"
         self.__program_output += "{:<32}".format("Cache Misses: ") + str(self.__cache_table.get_misses()) + "\n"
         self.__program_output += "{:<32}".format("--- Compulsory Misses: ") + str(self.__cache_table.get_compulsory()) + "\n"
-        self.__program_output += "{:<32}".format("--- Conflict Misses:: ") + str(self.__cache_table.get_conflict()) + "\n"
+        self.__program_output += "{:<32}".format("--- Conflict Misses: ") + str(self.__cache_table.get_conflict()) + "\n"
 
         self.__program_output += "\n\n***** ***** CACHE SIMULATION RESULTS ***** *****\n\n"
         self.__program_output += "{:<32}".format("Hit Rate: ") + str(0000) + "\n"
