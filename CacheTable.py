@@ -125,5 +125,13 @@ class CacheTable:
     def get_conflict(self):
         return self.__conflict
 
-
+    # --- CARLOS: Helper method for Unused Blocks ---
+    def get_unused_blocks_count(self):
+        """Counts the number of blocks in the cache that are NOT valid."""
+        unused_count = 0
+        for index in self.__cache_table:
+            for way in self.__cache_table[index]:
+                if not way.is_valid():
+                    unused_count += 1
+        return unused_count
 

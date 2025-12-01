@@ -3,7 +3,7 @@ from CacheTable import CacheTable
 from Tracer import Tracer
 from SimulationParameters import SimulationParameters
 from SimulationParameters import SimulationParametersBuilder
-
+import math
 class Simulation:
     def __init__(self):
         self.__parameters = Tracer().get_simulation_parameters()
@@ -96,23 +96,65 @@ class Simulation:
         return self.__program_output
             
     def get_program_output_m3(self):
+        # --- CARLOS: Statistics Calculation Logic ---
+        
+        # 1. Gather basic stats from CacheTable
+        total_accesses = self.__cache_table.get_total_accesses()
+        hits = self.__cache_table.get_hits()
+        misses = self.__cache_table.get_misses()
+        
+        # 2. Calculate Rates
+        hit_rate = (hits / total_accesses * 100) if total_accesses > 0 else 0
+        miss_rate = 100.0 - hit_rate
+        
+        block_size = self.__parameters.get_block_size_bytes()
+        reads_per_block = math.ceil(block_size / 4)
+        miss_penalty_cycles = reads_per_block * 4
+        
+        total_page_faults = sum(table.get_total_page_faults() for table in self.__virtual_memory_tables.values())
+        
+        # Total Cycles 
+        total_cycles = (hits * 1) + \
+                       (misses * miss_penalty_cycles) + \
+                       (total_page_faults * 100) + \
+                       (self.__total_instruction_count * 2) + \
+                       (self.__total_data_access_count * 1)
+                       
+        cpi = total_cycles / self.__total_instruction_count if self.__total_instruction_count > 0 else 0
+        
+        # 4. Calculate Unused Cache Space
+        unused_blocks = self.__cache_table.get_unused_blocks_count()
+        total_blocks = self.__parameters.get_total_blocks()
+        
+        bytes_per_block_entry = self.__parameters.get_block_size_bytes() + (self.__parameters.get_overhead_bits_per_block() / 8)
+        
+        unused_kb = (unused_blocks * bytes_per_block_entry) / 1024
+        total_cache_kb = self.__parameters.get_implementation_memory_kb()
+        
+        waste_percent = (unused_kb / total_cache_kb * 100) if total_cache_kb > 0 else 0
+        total_cost = self.__parameters.get_cost()
+        waste_cost = (waste_percent / 100) * total_cost
+
+        # --- Generating Output ---
+
         self.__program_output += "\n***** CACHE SIMULATION RESULTS *****\n\n"
-        self.__program_output += "{:<32}".format("Total Cache Accesses: ") +  str(self.__cache_table.get_total_accesses()) + "\n"
+        self.__program_output += "{:<32}".format("Total Cache Accesses: ") +  str(total_accesses) + "\n"
         self.__program_output += "{:<32}".format("--- Instruction Bytes: ") + str(self.__cache_table.get_instruction_bytes()) + "\n"
         self.__program_output += "{:<32}".format("--- SrcDst Bytes: ") + str(self.__cache_table.get_SrcDst_bytes()) + "\n"
 
-        self.__program_output += "{:<32}".format("Cache Hits: ") + str(self.__cache_table.get_hits()) + "\n"
-        self.__program_output += "{:<32}".format("Cache Misses: ") + str(self.__cache_table.get_misses()) + "\n"
+        self.__program_output += "{:<32}".format("Cache Hits: ") + str(hits) + "\n"
+        self.__program_output += "{:<32}".format("Cache Misses: ") + str(misses) + "\n"
         self.__program_output += "{:<32}".format("--- Compulsory Misses: ") + str(self.__cache_table.get_compulsory()) + "\n"
         self.__program_output += "{:<32}".format("--- Conflict Misses:: ") + str(self.__cache_table.get_conflict()) + "\n"
 
         self.__program_output += "\n\n***** ***** CACHE SIMULATION RESULTS ***** *****\n\n"
-        self.__program_output += "{:<32}".format("Hit Rate: ") + str(0000) + "\n"
-        self.__program_output += "{:<32}".format("Miss Rate: ") + str(00000) + "\n"
-        self.__program_output += "{:<32}".format("CPI: ") + str(00000) + "\n"
-        self.__program_output += "{:<32}".format("Unused Cache Space: ") + str(00000) + "\n"
-        self.__program_output += "{:<32}".format("Unused Cache Blocks: ") + str(0000) + "\n"
+        self.__program_output += "{:<32}".format("Hit Rate: ") + f"{hit_rate:.4f}%" + "\n"
+        self.__program_output += "{:<32}".format("Miss Rate: ") + f"{miss_rate:.4f}%" + "\n"
+        self.__program_output += "{:<32}".format("CPI: ") + f"{cpi:.2f} Cycles/Instruction ({int(total_cycles)})" + "\n"
+        
+        self.__program_output += "{:<32}".format("Unused Cache Space: ") + \
+                                 f"{unused_kb:.2f} KB / {total_cache_kb:.2f} KB = {waste_percent:.2f}% Waste: ${waste_cost:.2f}/chip" + "\n"
+                                 
+        self.__program_output += "{:<32}".format("Unused Cache Blocks: ") + f"{unused_blocks} / {total_blocks}" + "\n"
 
         return self.__program_output
-    
-    
