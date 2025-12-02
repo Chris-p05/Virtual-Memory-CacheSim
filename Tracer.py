@@ -3,6 +3,7 @@ import math
 import re
 from  Instruction import Instruction
 from SimulationParameters import SimulationParametersBuilder 
+from SimulationInstructions import  SimulationInstructionsBuilder
 
 class Tracer:
     def __init__(self):
@@ -75,7 +76,9 @@ class Tracer:
         self.parsed_arg = parser.parse_args()
 
 
-    def parse_trace_line(self, line, data):
+    def parse_trace_line(self, line, data, parameters):
+
+
 
         if line.startswith("EIP"):
 
@@ -83,33 +86,35 @@ class Tracer:
             if match:
                 length = int(match.group(1))     
                 address = int(match.group(2), 16)   
-                data.append(Instruction(address, length, 'instruction'))    
+                data.append(Instruction(address, length, 'instruction', parameters))    
 
         elif line.startswith("dstM"):
 
-            dst_match = re.search(r"dstM:\s*([0-9a-fA-F]+)\s+([0-9A-F\-]+)", line)
+            dst_match = re.search(r"dstM:\s*([0-9a-fA-F]+)\s+([0-9a-fA-F\-]+)", line)
             if dst_match:
                 dst_addr = int(dst_match.group(1), 16)
                 dst_data = dst_match.group(2)
 
                 if dst_addr != 0 and dst_data != "--------":
-                    data.append(Instruction(dst_addr, 4, 'data')) 
+                    data.append(Instruction(dst_addr, 4, 'data', parameters)) 
 
-            src_match = re.search(r"srcM:\s*([0-9a-fA-F]+)\s+([0-9A-F\-]+)", line)
+            src_match = re.search(r"srcM:\s*([0-9a-fA-F]+)\s+([0-9a-fA-F\-]+)", line)
             if src_match:
                 src_addr = int(src_match.group(1), 16)
                 src_data = src_match.group(2)
                 if src_addr != 0 and src_data != "--------":
-                    data.append(Instruction(src_addr, 4, 'data'))
+                    data.append( Instruction(src_addr, 4, 'data', parameters))
 
     def parse_trace_file(self, filenames):
+        self.load()
+        parameters = self.get_simulation_parameters()
         instructions: dict[str, List[Instruction]] = {}
         for filename in filenames:
             data = []
             try:
                 with open(filename, "r") as file:
                     for line in file:
-                        self.parse_trace_line(line.strip(), data)
+                        self.parse_trace_line(line.strip(), data, parameters)
                 instructions[filename] = data
             except FileNotFoundError:
                 print(f"Warning: Trace file '{filename}' not found!")
@@ -121,6 +126,13 @@ class Tracer:
         return ( 
             SimulationParametersBuilder()
             .set_arg(self.parsed_arg)
+            .build()
+        )
+
+    def get_simulation_instructions(self):
+        self.load()
+        return ( 
+            SimulationInstructionsBuilder()
             .set_instructions(self.parse_trace_file(self.parsed_arg.trace_files))
             .build()
         )

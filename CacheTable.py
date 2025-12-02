@@ -5,6 +5,7 @@ from Instruction import Instruction
 class CacheTable:
     def __init__(self, parameters):
         self.__parameters = parameters
+
         self.__cache_table = {
             i: [CacheBlock() for _ in range(self.__parameters.get_associativity())]
             for i in range(self.__parameters.get_total_rows())
@@ -13,6 +14,7 @@ class CacheTable:
         self.rr_ptr = [0] * self.__parameters.get_total_rows()
 
         #statistics
+        self.__addresses_accesses = 0
         self.__total_accesses = 0
         self.__hits = 0
         self.__misses = 0
@@ -22,84 +24,67 @@ class CacheTable:
         self.__instruction_bytes = 0
         self.__SrcDst_bytes = 0
 
-
     def is_hit(self, index, tag):
-
         for block in self.__cache_table[index]:
             if block.get_tag() == tag and block.is_valid():
                 return True
         return False
 
-    def is_compulsory_miss(self, index):
-        for way in self.__cache_table[index]:
-            if not way.is_valid():
-                return True
-        return False
-    
     def is_conflict_miss(self, index, tag):
-        if self.is_hit(index, tag):
-            return False
-        return all(way.is_valid() for way in self.__cache_table[index])
-
+        return all(block.is_valid() for block in self.__cache_table[index]) and tag not in [block.get_tag() for block in self.__cache_table[index]]
 
     def round_robin_replace(self, index, tag):
         victim_way = self.rr_ptr[index]
         self.rr_ptr[index] = (victim_way + 1) % self.__parameters.get_associativity()
         victim = self.__cache_table[index][victim_way]
-        victim.set_valid(True)
+        victim.set_valid()
         victim.set_tag(tag)
 
     def random_replace(self, index, tag):
         victim =  random.choice(self.__cache_table[index]) 
-        victim.set_valid(True)
+        victim.set_valid()
         victim.set_tag(tag)
-        print(victim)
 
+    def access_cache(self, instruction: Instruction):
 
-
-    def get_offset(self, address):
-        offset_size = self.__parameters.get_offset_size_bits()
-        return address & ((1 << offset_size) - 1)
-
-    def get_index(self, address):
-        offset_size = self.__parameters.get_offset_size_bits()
-        index_size = self.__parameters.get_index_size_bits()
-        return (address >> offset_size) & ((1 << index_size) - 1)
-
-    def get_tag(self, address):
-        offset_size = self.__parameters.get_offset_size_bits()
-        index_size = self.__parameters.get_index_size_bits()
-        return address >> ( offset_size + index_size)
-
-
-    def access_cache(self, instruction:Instruction):
-
-        self.__total_accesses += 1
+        self.__addresses_accesses += 1
 
         if instruction.get_instruction_type() == "instruction":
             self.__instruction_bytes += instruction.get_instruction_length()
-        if instruction.get_instruction_type() == "data":
+        else:
             self.__SrcDst_bytes += instruction.get_instruction_length()
-       
-        index = self.get_index(instruction.get_physical_address())
-        tag = self.get_tag(instruction.get_physical_address())
 
-        if self.is_hit(index, tag):
-            self.__hits += 1
-            return
+        start_address = instruction.get_physical_address()
+        length = instruction.get_instruction_length() #in bytes 
+        end_address = start_address + length - 1
 
-        self.__misses += 1
+        start_block = start_address // self.__parameters.get_block_size_bytes() #in bytes 
+        end_block = end_address // self.__parameters.get_block_size_bytes() #in bytes 
+      
+        for block in range(start_block, end_block + 1):
 
-        if self.is_compulsory_miss(index):
-            self.__compulsory += 1
+            block_address = block * self.__parameters.get_block_size_bytes() #in bytes 
+            index = instruction.find_index(block_address)
+            tag = instruction.find_tag(block_address)
 
-        if self.is_conflict_miss(index, tag):
-            self.__conflict += 1
+            self.__total_accesses += 1
 
-        if self.__parameters.get_replacement_policy() == "rr":
-            self.round_robin_replace(index, tag)
-        elif self.__parameters.get_replacement_policy() == "r":
-            self.random_replace(index, tag)
+            if self.is_hit(index, tag):
+                self.__hits += 1
+            else:
+                self.__misses += 1
+
+                if self.is_conflict_miss(index, tag):
+                    self.__conflict += 1
+                else:
+                    self.__compulsory += 1
+
+                # Replacement policy
+                if self.__parameters.get_replacement_policy() == "rr":
+                    self.round_robin_replace(index, tag)
+                else:
+                    self.random_replace(index, tag)
+
 
     def get_total_accesses(self):
         return self.__total_accesses
@@ -109,9 +94,6 @@ class CacheTable:
 
     def get_SrcDst_bytes(self):
         return self.__SrcDst_bytes
-
-    def get_total_accesses(self):
-        return self.__total_accesses
 
     def get_hits(self):
         return self.__hits
@@ -134,4 +116,14 @@ class CacheTable:
                 if not way.is_valid():
                     unused_count += 1
         return unused_count
+        
+    def get_addresses_accesses(self):
+        return self.__addresses_accesses
+
+    def get_hit_rate(self):
+        return (self.__hits / self.__total_accesses * 100) if self.__total_accesses > 0 else 0
+    
+    def get_miss_rate(self):
+        return (self.__misses / self.__total_accesses * 100) if self.__total_accesses > 0 else 0
+
 

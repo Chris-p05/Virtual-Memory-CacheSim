@@ -7,6 +7,7 @@ class SimulationParametersBuilder:
 
         ##os
         self.page_size = None  # 4KB final page size
+        self.page_size_bits = None # 4KB => 12 bits
         self.physical_memory_os_usage = None
         self.physical_system_page_number = None
         self.physical_user_page_number = None
@@ -50,6 +51,7 @@ class SimulationParametersBuilder:
 
     def set_arg(self, arg):
         self.trace_file = arg.trace_files
+        self.page_size_bits = 12
         self.page_size= 4096
 
         #Virtual memory 
@@ -88,18 +90,15 @@ class SimulationParametersBuilder:
 
         return self
 
-    def set_instructions(self, instructions):
-        self.instructions = instructions
-        return self
+
 
 class SimulationParameters:
 
     def __init__ (self, builder:SimulationParametersBuilder):
 
-        self.__instructions: dict[str, List[Instruction]] = builder.instructions
-
         ##os
         self.__page_size = builder.page_size # 4KB final page size
+        self.__page_size_bits = builder.page_size_bits
         self.__physical_memory_os_usage = builder.physical_memory_os_usage
         self.__physical_system_page_number = builder.physical_system_page_number
         self.__physical_user_page_number = builder.physical_user_page_number
@@ -137,11 +136,10 @@ class SimulationParameters:
 
         ## files
         self.__trace_file = builder.trace_file
-
-    def get_instructions(self): return self.__instructions
-
+        
     ## OS
     def get_page_size(self): return self.__page_size
+    def get_page_size_bits(self) : return self.__page_size_bits
     def get_physical_memory_os_usage(self): return self.__physical_memory_os_usage
     def get_physical_system_page_number(self): return self.__physical_system_page_number
     def get_physical_user_page_number(self): return self.__physical_user_page_number
