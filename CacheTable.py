@@ -106,16 +106,6 @@ class CacheTable:
 
     def get_conflict(self):
         return self.__conflict
-
-    # --- CARLOS: Helper method for Unused Blocks ---
-    def get_unused_blocks_count(self):
-        """Counts the number of blocks in the cache that are NOT valid."""
-        unused_count = 0
-        for index in self.__cache_table:
-            for way in self.__cache_table[index]:
-                if not way.is_valid():
-                    unused_count += 1
-        return unused_count
         
     def get_addresses_accesses(self):
         return self.__addresses_accesses
@@ -126,4 +116,21 @@ class CacheTable:
     def get_miss_rate(self):
         return (self.__misses / self.__total_accesses * 100) if self.__total_accesses > 0 else 0
 
+    # --- CARLOS: Helper method for Unused Blocks ---
+    def get_unused_blocks_count(self):
+        """Counts the number of blocks in the cache that are NOT valid."""
+        unused_count = 0
+        for index in self.__cache_table:
+            for way in self.__cache_table[index]:
+                if not way.is_valid():
+                    unused_count += 1
+        return unused_count
 
+    def get_unused_kb(self):
+        return (self.get_unused_blocks_count() * (self.__parameters.get_block_size_bytes() + (self.__parameters.get_overhead_bits_per_block() / 8))) / 1024
+
+    def get_waste_percent(self):
+        return (self.get_unused_kb() / self.__parameters.get_implementation_memory_kb() * 100) if self.__parameters.get_implementation_memory_kb() > 0 else 0
+
+    def get_waste_cost(self):
+        return (self.get_waste_percent() / 100) * self.__parameters.get_cost()

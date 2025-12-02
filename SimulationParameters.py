@@ -91,7 +91,6 @@ class SimulationParametersBuilder:
         return self
 
 
-
 class SimulationParameters:
 
     def __init__ (self, builder:SimulationParametersBuilder):
