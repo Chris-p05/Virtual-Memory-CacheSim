@@ -39,9 +39,45 @@ class Simulation:
         return total_instructions_count
     
     def get_total_cycles(self):
+        # 1. Calculate Cache Miss Penalty
+        block_size = self.__parameters.get_block_size_bytes()
+        miss_penalty = math.ceil(block_size / 4) * 4
+
+        # 2. Count Instructions (EIP) vs Data Accesses (src/dst) manually here
+        instruction_count = 0
+        data_access_count = 0
+        
+        for filename, instructions in self.__instructions.get_instructions().items():
+            for instruction in instructions:
+                if instruction.get_instruction_type() == 'instruction':
+                    instruction_count += 1
+                else:
+                    data_access_count += 1
+
+        # 3. Get existing stats
+        hits = self.__cache_table.get_hits()
+        misses = self.__cache_table.get_misses()
+        total_page_faults = sum(table.get_total_page_faults() for table in self.__virtual_memory_tables.values())
+
+        # 4. Calculate Total Cycles        
+        total_cycles = (instruction_count * 2) + \
+                       (data_access_count * 1) + \
+                       (total_page_faults * 100) + \
+                       (hits * 1) + \
+                       (misses * miss_penalty)
+                       
+        return total_cycles
         #count 
 
     def get_cpi(self):
+        # CPI = Total Cycles / Total Instructions
+        total_cycles = self.get_total_cycles()
+        
+        total_instructions = self.get_total_instructions_count()
+        if total_instructions > 0:
+
+            return total_cycles / total_instructions
+        return 0.0
         #get cpi
 
     def get_program_output_m1(self):
@@ -108,19 +144,9 @@ class Simulation:
 
         # --- CARLOS: Statistics Calculation Logic ---
         
-        #1. Gather basic stats from CacheTable
-        
-        miss_penalty_cycles = math.ceil(self.__parameters.get_block_size_bytes() / 4) * 4
-        total_page_faults = sum(table.get_total_page_faults() for table in self.__virtual_memory_tables.values())
-        
-        # Total Cycles 
-        total_cycles = (self.__cache_table.get_hits() * 1) + \
-                       (self.__cache_table.get_misses() * miss_penalty_cycles) + \
-                       (total_page_faults * 100) + \
-                       (self.__total_instruction_count * 2) + \
-                       (self.__total_data_access_count * 1)
-                       
-        cpi = total_cycles / self.__total_instruction_count if self.__total_instruction_count > 0 else 0
+        # We now simply call the methods we fixed to get the correct values
+        cpi = self.get_cpi()
+        total_cycles = self.get_total_cycles()
 
 
     
@@ -138,7 +164,6 @@ class Simulation:
         self.__program_output += "{:<32}".format("Hit Rate: ") + f"{self.__cache_table.get_hit_rate():.4f}%\n"
         self.__program_output += "{:<32}".format("Miss Rate: ") + f"{self.__cache_table.get_miss_rate():.4f}%\n"
 
-        #self.__program_output += "{:<32}".format("CPI: ") + f"{cpi:.2f} Cycles/Instruction ({int(total_cycles)})" + "\n"
         self.__program_output += "{:<32}".format("Unused Cache Space: ") + f"{self.__cache_table.get_unused_kb():.2f} KB / {self.__parameters.get_implementation_memory_kb():.2f} KB = {self.__cache_table.get_waste_percent():.2f}% Waste: ${self.__cache_table.get_waste_cost():.2f}/chip" + "\n"       
         self.__program_output += "{:<32}".format("Unused Cache Blocks: ") + f"{self.__cache_table.get_unused_blocks_count()} / {self.__parameters.get_total_blocks()}" + "\n"
 
