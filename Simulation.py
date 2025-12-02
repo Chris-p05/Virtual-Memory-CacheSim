@@ -101,8 +101,8 @@ class Simulation:
         self.__program_output += "{:<32}".format("--- Conflict Misses: ") + str(self.__cache_table.get_conflict()) + "\n"
 
         self.__program_output += "\n\n***** ***** CACHE SIMULATION RESULTS ***** *****\n\n"
-        self.__program_output += "{:<32}".format("Hit Rate: ") + str(0000) + "\n"
-        self.__program_output += "{:<32}".format("Miss Rate: ") + str(00000) + "\n"
+        self.__program_output += "{:<32}".format("Hit Rate: ") + str(self.__cache_table.get_hit_rate()) + "%\n"
+        self.__program_output += "{:<32}".format("Miss Rate: ") + str(self.__cache_table.get_miss_rate()) + "%\n"
         self.__program_output += "{:<32}".format("CPI: ") + str(00000) + "\n"
         self.__program_output += "{:<32}".format("Unused Cache Space: ") + str(00000) + "\n"
         self.__program_output += "{:<32}".format("Unused Cache Blocks: ") + str(0000) + "\n"

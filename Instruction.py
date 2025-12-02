@@ -7,11 +7,11 @@ class Instruction:
         self.__physical_page_number = None
         self.__tag = None
         self.__index = None
+        self.__page_offset = None
         self.__offset = None
         self.__instruction_length = instruction_length
         self.__instruction_type = instruction_type
         self.__parameters: SimulationParameters = parameters
-
 
     def get_virtual_address(self): return self.__virtual_address
     def get_instruction_length(self): return self.__instruction_length
@@ -27,8 +27,23 @@ class Instruction:
         
     def get_physical_address(self):
         if self.__physical_address is None:
-             self.__physical_address = self.page_number_to_address(self.__physical_page_number, self.get_offset())
+             self.__physical_address = self.page_number_to_address(self.__physical_page_number, self.get_page_offset())
         return self.__physical_address
+
+    def get_page_offset(self): 
+        if self.__page_offset is None:
+            self.__page_offset = self.find_page_offset( self.__virtual_address)
+        return self.__page_offset
+
+    def find_page_offset(self, address):
+        page_size = self.__parameters.get_page_size_bits()
+        return address & ((1 << page_size) - 1)
+
+    def address_to_page_number(self, address):
+        return address // self.__parameters.get_page_size()
+    
+    def page_number_to_address(self, page_number, offset):
+        return page_number * self.__parameters.get_page_size() + offset
 
     def get_tag(self): 
         if self.__tag is None:
@@ -42,14 +57,9 @@ class Instruction:
 
     def get_offset(self): 
         if self.__offset is None:
-            self.__offset = self.find_offset( self.__virtual_address)
+            self.__offset = self.find_offset( self.__physical_address)
         return self.__offset
 
-    def address_to_page_number(self, address):
-        return address // self.__parameters.get_page_size()
-    
-    def page_number_to_address(self, page_number, offset):
-        return page_number * self.__parameters.get_page_size() + offset
 
     def find_offset(self, address):
         offset_size = self.__parameters.get_offset_size_bits()
