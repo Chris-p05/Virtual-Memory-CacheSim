@@ -107,7 +107,7 @@ class Simulation:
         self.__program_output += "\n\n***** *****  CACHE HIT & MISS RATE:  ***** *****\n\n"
         self.__program_output += "{:<32}".format("Hit Rate: ") + f"{self.__cache_table.get_hit_rate():.4f}%\n"
         self.__program_output += "{:<32}".format("Miss Rate: ") + f"{self.__cache_table.get_miss_rate():.4f}%\n"
-        self.__program_output += "{:<32}".format("CPI: ") + f"{self.__cache_table.get_total_cycles()/self.__instructions.get_total_instructions_count():.2f} Cycles/Instruction ({int(self.__instructions.get_total_instructions_count())})" + "\n"
+        self.__program_output += "{:<32}".format("CPI: ") + f"{(self.__cache_table.get_total_cycles() + sum(table.get_total_page_faults() for table in self.__virtual_memory_tables.values()) * 100) /self.__instructions.get_total_instructions_count():.2f} Cycles/Instruction ({int(self.__instructions.get_total_instructions_count())})" + "\n"
         self.__program_output += "{:<32}".format("Unused Cache Space: ") + f"{self.__cache_table.get_unused_kb():.2f} KB / {self.__parameters.get_implementation_memory_kb():.2f} KB = {self.__cache_table.get_waste_percent():.2f}% Waste: ${self.__cache_table.get_waste_cost():.2f}/chip" + "\n"       
         self.__program_output += "{:<32}".format("Unused Cache Blocks: ") + f"{self.__cache_table.get_unused_blocks_count()} / {self.__parameters.get_total_blocks()}" + "\n"
 
