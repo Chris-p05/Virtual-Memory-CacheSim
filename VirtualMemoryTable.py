@@ -71,7 +71,6 @@ class VirtualMemoryTable:
         self.__cache_table.invalidate_physical_page(victim_physical_page)
 
         # Reuse the victim page
-        print(f"0x{victim_physical_page:X}", f"| {victim_physical_page:016b}")
         self.map_virtual_to_physical(virtual_page, victim_physical_page)
         instruction.set_physical_page_number(victim_physical_page)
 

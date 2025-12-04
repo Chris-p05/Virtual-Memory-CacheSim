@@ -66,7 +66,6 @@ class CacheTable:
 
     def invalidate_physical_page(self, physical_page_number):
 
-        print("Address to invalidate:  ", f"0x{physical_page_number:X}", f"| {physical_page_number:016b}")
         page_size = self.__parameters.get_page_size()
         start_address = physical_page_number * page_size
         end_address = start_address + page_size - 1
