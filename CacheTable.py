@@ -23,6 +23,7 @@ class CacheTable:
 
         self.__instruction_bytes = 0
         self.__SrcDst_bytes = 0
+        self.__cycles = 0
 
     def is_hit(self, index, tag):
         for block in self.__cache_table[index]:
@@ -51,8 +52,10 @@ class CacheTable:
 
         if instruction.get_instruction_type() == "instruction":
             self.__instruction_bytes += instruction.get_instruction_length()
+            self.__cycles += 2
         else:
             self.__SrcDst_bytes += instruction.get_instruction_length()
+            self.__cycles += 1
 
         start_address = instruction.get_physical_address()
         length = instruction.get_instruction_length() #in bytes 
@@ -60,6 +63,7 @@ class CacheTable:
 
         start_block = start_address // self.__parameters.get_block_size_bytes() #in bytes 
         end_block = end_address // self.__parameters.get_block_size_bytes() #in bytes 
+
       
         for block in range(start_block, end_block + 1):
 
@@ -71,9 +75,11 @@ class CacheTable:
 
             if self.is_hit(index, tag):
                 self.__hits += 1
+                self.__cycles += 1
             else:
                 self.__misses += 1
-
+                self.__cycles += 4 * self.__parameters.get_block_size_bytes() / 4
+                
                 if self.is_conflict_miss(index, tag):
                     self.__conflict += 1
                 else:
@@ -134,3 +140,6 @@ class CacheTable:
 
     def get_waste_cost(self):
         return (self.get_waste_percent() / 100) * self.__parameters.get_cost()
+
+    def get_total_cycles(self):
+        return self.__cycles

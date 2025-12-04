@@ -17,4 +17,12 @@ class SimulationInstructions:
     def get_instructions(self):
         return self.__instructions
 
+    def get_total_instructions_count(self):
+        total_instructions_count = 0
+        for filename, instructions in  self.__instructions.items():
+            for instruction in instructions:
+                if instruction.get_instruction_type() == "instruction":
+                    total_instructions_count += 1
+        return total_instructions_count
+
     
