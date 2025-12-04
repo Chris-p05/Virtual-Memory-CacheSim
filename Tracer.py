@@ -5,6 +5,8 @@ from  Instruction import Instruction
 from SimulationParameters import SimulationParametersBuilder 
 from SimulationInstructions import  SimulationInstructionsBuilder
 
+# Christopher Peters and Maryna Korolova Part starts here >:) 
+
 class Tracer:
     def __init__(self):
         self.parsed_arg = None
@@ -77,8 +79,6 @@ class Tracer:
 
 
     def parse_trace_line(self, line, data, parameters):
-
-
 
         if line.startswith("EIP"):
 

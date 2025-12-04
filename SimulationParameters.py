@@ -1,6 +1,8 @@
 import math
 from Instruction import Instruction
 
+# Christopher Peters and Maryna Korolova and Carlos Part starts here >:) 
+
 class SimulationParametersBuilder:
     def __init__(self):
         self.instructions: dict[str, List[Instruction]] = {}
@@ -42,6 +44,7 @@ class SimulationParametersBuilder:
         self.physical_memory_mb = None
         self.physical_memory_bytes = None
         self.physical_page_number = None
+        self.physical_address_space = None
 
         ## files
         self.trace_file = []
@@ -54,20 +57,21 @@ class SimulationParametersBuilder:
         self.page_size_bits = 12
         self.page_size= 4096
 
-        #Virtual memory 
-        self.instruction_number = arg.instructions
-        self.virtual_address_space = 31
-        self.pte_entries_per_process = 524288
-        self.page_table_entry_bits = 19
-        self.total_ram_for_page_tables_bytes = (self.pte_entries_per_process * len(self.trace_file) * self.page_table_entry_bits) // 8 
-
         # Physical memory
         self.physical_memory_mb = arg.physical_memory
         self.physical_memory_bytes = self.physical_memory_mb * 1024 * 1024
+        self.physical_address_space = int(math.log2(self.physical_memory_bytes))
         self.physical_page_number = self.physical_memory_bytes // self.page_size
         self.physical_memory_os_usage = arg.physical_memory_os_usage
         self.physical_system_page_number = int(self.physical_memory_os_usage / 100.0 * self.physical_page_number)
         self.physical_user_page_number = self.physical_page_number - self. physical_system_page_number
+
+        #Virtual memory 
+        self.instruction_number = arg.instructions
+        self.virtual_address_space = 31
+        self.pte_entries_per_process = 524288
+        self.page_table_entry_bits = 1 + self.physical_address_space - self.page_size_bits
+        self.total_ram_for_page_tables_bytes = (self.pte_entries_per_process * len(self.trace_file) * self.page_table_entry_bits) // 8 
 
         # Cache
         self.cache_size_kb = arg.cache_size
@@ -131,6 +135,7 @@ class SimulationParameters:
         ##Physical memory Parameters
         self.__physical_memory_mb = builder.physical_memory_mb
         self.__physical_memory_bytes = builder.physical_memory_bytes
+        self.__physical_address_space = builder.physical_address_space
         self.__physical_page_number = builder.physical_page_number
 
         ## files

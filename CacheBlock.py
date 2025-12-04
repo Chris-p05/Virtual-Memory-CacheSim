@@ -1,3 +1,5 @@
+# Maryna Korolova Part starts here >:)
+
 class CacheBlock:
     def __init__(self):
         self.tag = None
@@ -17,3 +19,6 @@ class CacheBlock:
 
     def reset_valid(self):
         self.valid = False
+
+    def is_never_used(self):
+        return self.never_used

@@ -6,31 +6,28 @@ import math
 from SimulationInstructions import SimulationInstructions
 from PhysicalMemoryTable import PhysicalMemoryTable
 
+# # Christopher Peters and Maryna Korolova and Carlos Part starts here >:) 
+
 class Simulation:
     def __init__(self):
         self.__parameters: SimulationParameters = Tracer().get_simulation_parameters()
-        self.__physical_memory_table = PhysicalMemoryTable(self.__parameters)
         self.__instructions: SimulationInstructions = Tracer().get_simulation_instructions()
-        self.__virtual_memory_tables: dict[str, VirtualMemoryTable] = {}
+
+        self.__physical_memory_table = PhysicalMemoryTable(self.__parameters)
         self.__cache_table = CacheTable(self.__parameters)
+        
+        self.__virtual_memory_tables: dict[str, VirtualMemoryTable] = {}
         self.__program_output = ""
 
-    def simulate_virtual_memory(self):
+    def start(self):
         for filename, instructions in  self.__instructions.get_instructions().items():
-            virtual_memory_table = VirtualMemoryTable( self.__physical_memory_table, self.__parameters)
+            self.__physical_memory_table.reset_memory()
+            virtual_memory_table = VirtualMemoryTable( self.__physical_memory_table, self.__cache_table, self.__parameters)
             for instruction in instructions:
                 virtual_memory_table.allocate_physical_page(instruction)
+                self.__cache_table.access_cache(instruction)
             self.__virtual_memory_tables[filename] = virtual_memory_table
-
-
-    def simulate_cache(self):
-        for filename, instructions in  self.__instructions.get_instructions().items():
-            for instruction in instructions:
-                 self.__cache_table.access_cache(instruction)
-
-    def start(self):
-        self.simulate_virtual_memory()
-        self.simulate_cache()
+            
 
     def get_program_output_m1(self):
         self.__program_output += "Cache Simulator - CS 3853 - Team #7\n\n"

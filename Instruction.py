@@ -1,3 +1,5 @@
+# Maryna Korolova Part starts here >:)
+
 class Instruction:
 
     def __init__(self, virtual_address, instruction_length, instruction_type, parameters):
