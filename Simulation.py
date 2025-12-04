@@ -4,10 +4,12 @@ from Tracer import Tracer
 from SimulationParameters import SimulationParameters
 import math
 from SimulationInstructions import SimulationInstructions
+from PhysicalMemoryTable import PhysicalMemoryTable
 
 class Simulation:
     def __init__(self):
         self.__parameters: SimulationParameters = Tracer().get_simulation_parameters()
+        self.__physical_memory_table = PhysicalMemoryTable(self.__parameters)
         self.__instructions: SimulationInstructions = Tracer().get_simulation_instructions()
         self.__virtual_memory_tables: dict[str, VirtualMemoryTable] = {}
         self.__cache_table = CacheTable(self.__parameters)
@@ -15,7 +17,7 @@ class Simulation:
 
     def simulate_virtual_memory(self):
         for filename, instructions in  self.__instructions.get_instructions().items():
-            virtual_memory_table = VirtualMemoryTable(self.__parameters)
+            virtual_memory_table = VirtualMemoryTable( self.__physical_memory_table, self.__parameters)
             for instruction in instructions:
                 virtual_memory_table.allocate_physical_page(instruction)
             self.__virtual_memory_tables[filename] = virtual_memory_table

@@ -5,10 +5,10 @@ from PhysicalMemoryTable import PhysicalMemoryTable
 # Christopher Peters and Maryna Korolova Part starts here >:) 
 
 class VirtualMemoryTable:
-    def __init__(self, parameters:SimulationParameters):
+    def __init__(self, physical_memory_table:PhysicalMemoryTable, parameters:SimulationParameters):
         self.__parameters = parameters
         self.__virtual_memory_table = {} # virtual page_number -> physical_page_number
-        self.__physical_memory_table = PhysicalMemoryTable(self.__parameters)
+        self.__physical_memory_table = physical_memory_table #PhysicalMemoryTable(self.__parameters)
 
         #satistic
         self.__virtual_pages_mapped = 0
