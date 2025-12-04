@@ -28,7 +28,7 @@ class VirtualMemoryTable:
 
     def allocate_physical_page(self, instruction):
         virtual_page = instruction.get_virtual_pages_number()
-        physical_page = None
+        physical_page = 0
 
         self.__virtual_pages_mapped += 1
         if self.is_mapped(virtual_page):
